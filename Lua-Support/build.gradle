@@ -70,7 +70,8 @@ jar {
     // dependencies except VRL
     from configurations.runtime.asFileTree.
         filter({file->return !file.name.startsWith("vrl-0")}).
-        filter({file->return !file.name.startsWith("VRL-UG")}).
+        filter({file->return !file.name.startsWith("VRL-UG.jar")}).
+        filter({file->return !file.name.startsWith("VRL-UG-API.jar")}).
         files.collect { zipTree(it) }
 
     // project class files compiled from source
