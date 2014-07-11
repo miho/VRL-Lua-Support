@@ -10,6 +10,7 @@ import edu.gcsc.vrl.ug.UGObject;
 import edu.gcsc.vrl.ug.UGObjectInterface;
 import edu.gcsc.vrl.ug.api.C_void;
 import edu.gcsc.vrl.ug.api.Const__C_void;
+import edu.gcsc.vrl.ug.api.F_ChangeDirectory;
 import edu.gcsc.vrl.ug.api.I_LuaShell;
 import edu.gcsc.vrl.ug.api.LuaShell;
 import eu.mihosoft.vrl.annotation.ComponentInfo;
@@ -30,10 +31,6 @@ import javax.naming.OperationNotSupportedException;
  *
  * @author Michael Hoffer &lt;info@michaelhoffer.de&gt;
  */
-/**
- *
- * @author Michael Hoffer &lt;info@michaelhoffer.de&gt;
- */
 @ComponentInfo(name = "UG Lua Shell", category = "UG4/Lua")
 public class UGLuaShell implements Serializable {
 
@@ -41,8 +38,8 @@ public class UGLuaShell implements Serializable {
 
     private transient I_LuaShell shell;
 
-    public void setWorkingDir(@ParamInfo(name = "value", style = "load-folder-dialog") File wd) throws OperationNotSupportedException {
-        throw new OperationNotSupportedException("Currently there is no way to change UGs CWD from Java.");
+    public void setWorkingDir(@ParamInfo(name = "value", style = "load-folder-dialog") File wd){
+        F_ChangeDirectory.invoke(wd.getAbsolutePath());
     }
 
     public void set(
@@ -80,12 +77,11 @@ public class UGLuaShell implements Serializable {
             @ParamInfo(name = "value") UGObjectInterface value) {
         setVoid(name, (UGObject) value);
     }
-
-    public void set(
+    
+    public void setConst(
             @ParamInfo(name = "name") String name,
-            @ParamInfo(name = "value") UGObjectInterface value,
-            @ParamInfo(name = "const") boolean isConst) {
-//        setVoid(name, value, isConst);
+            @ParamInfo(name = "value") UGObjectInterface value) {
+        setVoidAsConst(name, (UGObject) value);
     }
 
     public String getString(@ParamInfo(name = "name") String name) {
@@ -105,8 +101,7 @@ public class UGLuaShell implements Serializable {
     }
 
     public void run(@ParamInfo(name = "code", style = "load-dialog",
-            options="endings=[\".txt\",\".lua\",\".uglua\"]; description=\"Lua Files (*.lua, *.txt, *.uglua)\"")
-            File code) throws IOException {
+            options = "endings=[\".txt\",\".lua\",\".uglua\"]; description=\"Lua Files (*.lua, *.txt, *.uglua)\"") File code) throws IOException {
         getRawShell().run(new String(IOUtil.fileToByteArray(code), "UTF-8"));
     }
 
@@ -120,6 +115,8 @@ public class UGLuaShell implements Serializable {
             Pointer pointer = (Pointer) getPointer.invoke(obj);
 
             if (obj.getClass().getSimpleName().startsWith("Const__")) {
+
+                // setting as const
                 Const__C_void result = new Const__C_void();
 
                 Field resultPointer = UGObject.class.getDeclaredField("objPointer");
@@ -127,8 +124,9 @@ public class UGLuaShell implements Serializable {
 
                 resultPointer.set(result, new Pointer("c_void", pointer.getAddress(), true));
                 getRawShell().set(name, result, obj.getClassName());
-                System.out.println("calling const: " + result);
             } else {
+                
+                // setting as non-const
                 C_void result = new C_void();
 
                 Field resultPointer = UGObject.class.getDeclaredField("objPointer");
@@ -136,7 +134,6 @@ public class UGLuaShell implements Serializable {
 
                 resultPointer.set(result, new Pointer("c_void", pointer.getAddress(), false));
                 getRawShell().set(name, result, obj.getClassName());
-                System.out.println("calling non-const: " + result);
             }
 
         } catch (NoSuchFieldException ex) {
