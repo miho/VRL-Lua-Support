@@ -99,6 +99,7 @@ public class UGLuaShell implements Serializable {
     
     public void reset() {
         getRawShell().reset();
+        shell = null;
     }
 
     public void run(@ParamInfo(name = "code", style = "lua-code") String code) {
