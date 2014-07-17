@@ -96,6 +96,10 @@ public class UGLuaShell implements Serializable {
     public boolean getBoolean(@ParamInfo(name = "name") String name) {
         return getRawShell().get_bool(name);
     }
+    
+    public void reset() {
+        getRawShell().reset();
+    }
 
     public void run(@ParamInfo(name = "code", style = "lua-code") String code) {
         getRawShell().run(code);
@@ -207,7 +211,7 @@ public class UGLuaShell implements Serializable {
     public void handleVRLWorkflowEvent(WorkflowEvent event) {
 
         if (event.getEventType().equals(WorkflowEvent.STOP_WORKFLOW)) {
-            //getRawShell().abort();
+            getRawShell().abort_run("");
             System.out.println("Aborting shell");
         }
     }
