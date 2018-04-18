@@ -41,7 +41,7 @@ public class LuaPluginConfigurator extends VPluginConfigurator {
                 "www.gcsc.uni-frankfurt.de", "LGPL", "License Text...");
 
         // specify dependencies
-        addDependency(new PluginDependency("VRL", "0.4.3.2.3", "x"));
+        //addDependency(new PluginDependency("VRL", "0.4.3.2.3", "x"));
         addDependency(new PluginDependency("VRL-UG", "0.2", "0.x"));
         addDependency(new PluginDependency("VRL-UG-API", "0.2", "0.x"));
     }
